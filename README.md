@@ -40,5 +40,14 @@ if you dont know what to do check project board 🎯
 You may contibute to this project by developing additional features.
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-		 
+		
 #### Thanking  [Jaya Shankar](https://github.com/jaya-shankar) & [InputBlackBoxOutput](https://github.com/InputBlackBoxOutput) for their implentation of Ashta-Chamma board game.
+
+1. 'Board.py' - contains environment for game 
+	a. 'add_player(self, player)'
+	b. 'diceRoll(self)' 
+	c. 'move(self, player_id)'
+	d. 'kill_check(self, best_move)' 
+	e. 'update(self, best_move, kill)' 
+	f. 'render(self)' 
+

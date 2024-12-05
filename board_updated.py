@@ -82,11 +82,11 @@ class Board:
             return current_pos
 
     def check_winner(self):
-        """Check if any player has won"""
         for player in self.players:
-            if all(pawn == self.paths[player.player_id][-1] for pawn in player.pawns):
-                return player  # Return the winning player
-        return None  # No winner yet
+            # Check if all pawns of the player have reached home
+            if all(pawn in self.home_places for pawn in player.pawns):
+                return player
+        return None
 
     def kill_check(self, best_move):
         """

@@ -70,33 +70,41 @@ class Board:
         number = random.choices(population=possibleNumbers, k=1)[0]
         return number
 
-    def move(self, player, pawn_index,roll):
+    def move(self, player, pawn_index, roll):
         """Move a pawn for the player, based on the dice roll."""
         print(f"Player {player.player_id} rolled a {roll}")
 
         current_pos = player.pawns[pawn_index]
+        # Ensure the current position is valid
+        if current_pos not in self.paths[player.player_id]:
+            print("Error: Pawn is not on the board!")
+            return current_pos
+
         current_pos_index = self.paths[player.player_id].index(current_pos)
         new_pos_index = current_pos_index + roll
 
-        if new_pos_index < len(self.paths[player.player_id]):
-            new_position = self.paths[player.player_id][new_pos_index]
-            player.kill = False
-            # Check if the position is occupied by another pawn
-            # eliminated_opponent_pawn = False
-            for opponent in self.players:
-                if opponent != player:
-                    if new_position in opponent.pawns:
-                        # Kill the opponent's pawn
-                        killed_pawn_index = opponent.pawns.index(new_position)
-                        # eliminated_opponent_pawn = True
-                        player.kill = True
-                        opponent.pawns[killed_pawn_index] = self.paths[opponent.player_id][0]  # Reset opponent pawn to start position
-            # Update the player's pawn position
-            player.update_position(pawn_index, new_position)
-            return new_position
-        else:
+        # Handle out of bounds move
+        if new_pos_index >= len(self.paths[player.player_id]):
             print("Move out of bounds!")
             return current_pos
+
+        # Update the new position
+        new_position = self.paths[player.player_id][new_pos_index]
+        player.kill = False  # Reset kill flag
+
+        # Check if the position is occupied by another pawn
+        for opponent in self.players:
+            if opponent != player:
+                if new_position in opponent.pawns:
+                    # Kill the opponent's pawn
+                    killed_pawn_index = opponent.pawns.index(new_position)
+                    player.kill = True
+                    # Reset opponent pawn to their start position
+                    opponent.pawns[killed_pawn_index] = self.paths[opponent.player_id][0]  # Reset to start position
+
+        # Update the player's pawn position
+        # player.update_position(pawn_index, new_position)
+        return new_position
 
     def kill_check(self, best_move):
         """
@@ -127,18 +135,17 @@ class Board:
         if kill != None and len(kill) != 0:
             self.players[kill[1]].pawns[kill[2]] = self.paths[kill[1]][0]
 
-    def check_winner(self):
+    def check_winner(self,chosen_move):
         """
         Check if any player has moved all their pawns to their home.
         :return: The player who won, or None if no winner yet.
         """
-        for player in self.players:
-            for pawn in player.pawns[:]:
-                if pawn == (4, 4):
-                    player.pawns.remove(pawn)
-                    player.score += 1
-            if player.score == 4:
-                return player
+        player_id,_,pawn_no,_ = chosen_move
+        if self.players[player_id].pawns[pawn_no] == (4,4):
+            self.players[player_id].pawns[pawn_no] = None
+            self.players[player_id].score += 1
+            if self.players[player_id].score == 3:
+                return self.players[player_id]
 
         return None
 
@@ -177,12 +184,14 @@ class Board:
         # Render each player's pawns
         for player in self.players:
             for pawn in player.pawns:
+                if pawn is None:
+                    continue
                 # Convert pawn position from grid coordinates to pixel coordinates
                 # Assuming pawn is a tuple of (row, col)
                 row, col = pawn
                 pawn_position = (self.padding + col * self.cell_size + self.cell_size // 2,  # X coordinate
                                  self.padding + row * self.cell_size + self.cell_size // 2)  # Y coordinate
-                pygame.draw.circle(screen, player.color, pawn_position, 20)  # Render pawns as circles
+                pygame.draw.circle(screen, player.color, pawn_position, 10)  # Render pawns as circles
 
 
 

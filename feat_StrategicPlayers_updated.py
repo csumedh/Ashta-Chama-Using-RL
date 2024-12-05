@@ -35,11 +35,19 @@ class StrategicPlayer:
 
         # Prioritize capture moves, if any
         if capture_moves:
-            print(f"The player has killed the pawn at  {capture_moves[0][3]}")
-            return capture_moves[0]  # Prioritize the first capture move
+            if capture_moves[0][3] == (4,4):
+                print("Pawn at win place, will be removed now!")
+                return capture_moves[0]
+            else:
+                print(f"The player has killed the pawn at  {capture_moves[0][3]}")
+                return capture_moves[0]  # Prioritize the first capture move
         elif safe_moves:
-            print(f"The player has chosen the safe move at {safe_moves[0][3]}")
-            return safe_moves[0]
+            if safe_moves[0][3] == (4,4):
+                print("Pawn at win place, will be removed now!")
+                return safe_moves[0]
+            else:
+                print(f"The player has chosen the safe move at {safe_moves[0][3]}")
+                return safe_moves[0]
         else:
             print(f"The player has chosen the best of the possible move, moving to {possible_moves[0][3]}")
             return possible_moves[0]  # Default to any move
@@ -52,7 +60,7 @@ class StrategicPlayer:
         # Check if the position has an opponent's pawn
         for player in players:
             if player.player_id != self.player_id:  # Skip own player
-                if position in player.pawns:  # Check if the position belongs to an opponent
+                if position in player.pawns:# Check if the position belongs to an opponent
                     return True
         return False
 
@@ -60,7 +68,10 @@ class StrategicPlayer:
         # For defensive move, prioritize safe moves
         safe_moves = []
         for move in possible_moves:
-            if self.is_safe_position(move,players):
+            if move == (4,4):
+                print("Pawn at win place, will be removed now!")
+                return move
+            elif self.is_safe_position(move,players):
                 safe_moves.append(move)
 
         if safe_moves:

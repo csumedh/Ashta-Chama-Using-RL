@@ -15,10 +15,12 @@ game_board = Board()
 
 # Define player start positions and colors
 start_positions = [
-    [game_board.paths[0][0], game_board.paths[0][1], game_board.paths[0][2], game_board.paths[0][3]],# Player 1
-    [game_board.paths[1][0], game_board.paths[1][1], game_board.paths[1][2], game_board.paths[1][3]],# Player 2
-    [game_board.paths[2][0], game_board.paths[2][1], game_board.paths[2][2], game_board.paths[2][3]],  # Player 3
-    [game_board.paths[3][0], game_board.paths[3][1], game_board.paths[3][2], game_board.paths[3][3]]]  # Player 4
+    [(0, 4), (1, 4)],  # Player 1, 4 pawns at the same position
+    [(4, 0), (4, 1)],  # Player 2, 4 pawns at the same position
+    [(8, 4), (7, 4)],  # Player 3, 4 pawns at the same position
+    [(4, 8), (4, 7)]   # Player 4, 4 pawns at the same position
+]
+
 colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)]  # Red, Green, Blue, Yellow
 strategies = ["defensive", "aggressive", "defensive", "aggressive"]
 
@@ -50,32 +52,39 @@ while running:
 
     # Go through each pawn for the current player and calculate possible moves
     for pawn_index, pawn in enumerate(current_player.pawns):
+        if pawn is None:
+            continue
         # Instead of manually calculating the dice roll, use the move function from Board
-        new_position = game_board.move(current_player, pawn_index,roll)
+        new_position = game_board.move(current_player, pawn_index, roll)
         if new_position != pawn:
             possible_moves.append((current_player_id, current_player.kill, pawn_index, new_position))
 
     # If there are possible moves, choose the first one (or the best one based on strategy)
     if possible_moves:
+        print(possible_moves)
         chosen_move = current_player.decide_move(possible_moves, game_board.players)
         _,_, pawn_index, new_position = chosen_move
-        current_player.update_position(pawn_index, new_position)  # Update pawn's position
+        print(chosen_move)
+        current_player.update_position(pawn_index, new_position) # Update pawn's position
+
 
     # Check if the current player has won
-    winner = game_board.check_winner()
+    winner = game_board.check_winner(chosen_move)
     if winner:
         print(f"Player {winner.player_id} wins!")
         print(f"Player {winner.player_id} strategy: {winner.strategy}")
+        print(f"The scores of all players are:{[player.score for player in game_board.players]}")
         running = False  # End the game
 
     # Cycle to the next player
     current_player_id = (current_player_id + 1) % len(game_board.players)
 
     # Cap the frame rate
-    clock.tick(100)
+    clock.tick(1)
 
     # Update the display
     pygame.display.flip()
 
 # Quit the game
 pygame.quit()
+

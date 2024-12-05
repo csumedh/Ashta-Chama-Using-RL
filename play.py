@@ -72,7 +72,7 @@ while running:
     current_player_id = (current_player_id + 1) % len(game_board.players)
 
     # Cap the frame rate
-    clock.tick(30)
+    clock.tick(100)
 
     # Update the display
     pygame.display.flip()

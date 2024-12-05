@@ -7,6 +7,7 @@ class StrategicPlayer:
         self.color = color  # Player's color
         self.strategy = strategy  # Player's strategy
         self.kill = None
+        self.score = 1
 
     def decide_move(self, possible_moves, players):
         # Choose the move based on the player's strategy

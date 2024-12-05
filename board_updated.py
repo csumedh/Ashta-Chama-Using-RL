@@ -133,9 +133,13 @@ class Board:
         :return: The player who won, or None if no winner yet.
         """
         for player in self.players:
-            # Check if all pawns of the player have reached home
-            if all(pawn in self.home_places for pawn in player.pawns):
+            for pawn in player.pawns[:]:
+                if pawn == (4, 4):
+                    player.pawns.remove(pawn)
+                    player.score += 1
+            if player.score == 4:
                 return player
+
         return None
 
     def render(self, screen):
@@ -179,5 +183,6 @@ class Board:
                 pawn_position = (self.padding + col * self.cell_size + self.cell_size // 2,  # X coordinate
                                  self.padding + row * self.cell_size + self.cell_size // 2)  # Y coordinate
                 pygame.draw.circle(screen, player.color, pawn_position, 20)  # Render pawns as circles
+
 
 

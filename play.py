@@ -1,5 +1,4 @@
 import pygame
-import random
 from board_updated import Board
 from feat_StrategicPlayers_updated import StrategicPlayer
 
@@ -23,11 +22,13 @@ start_positions = [
 colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)]  # Red, Green, Blue, Yellow
 strategies = ["defensive", "aggressive", "defensive", "aggressive"]
 
+
 # Add players to the game
 for i in range(len(start_positions)):
     player = StrategicPlayer(player_id=i, start_positions=start_positions[i], color=colors[i], strategy=strategies[i])
     game_board.add_player(player)
 
+players = game_board.players
 # Game loop
 running = True
 clock = pygame.time.Clock()
@@ -55,7 +56,7 @@ while running:
 
     # If there are possible moves, choose the first one (or the best one based on strategy)
     if possible_moves:
-        chosen_move = possible_moves[0]
+        chosen_move = current_player.decide_move(possible_moves, game_board.players)
         _, pawn_index, new_position = chosen_move
         current_player.update_position(pawn_index, new_position)  # Update pawn's position
 

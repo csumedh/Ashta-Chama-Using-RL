@@ -37,6 +37,22 @@ class Board:
                                                self.board_size * self.cell_size + 2 * self.padding))
         pygame.display.set_caption("Ashta Chamma")
 
+    # def _create_players(self):
+    #     # Define starting positions and colors
+    #     start_positions = [
+    #         [(0, 4), (1, 4), (1, 3), (1, 2)],  # Player 1's pawns
+    #         [(4, 0), (4, 1), (5, 1), (6, 1)],  # Player 2's pawns
+    #         [(8, 4), (7, 4), (7, 5), (7, 6)],  # Player 3's pawns
+    #         [(4, 8), (4, 7), (3, 7), (2, 7)],  # Player 4's pawns
+    #     ]
+    #     colors = ["red", "blue", "green", "yellow"]  # Player colors
+    #
+    #     players = []
+    #     for i, start_pos in enumerate(start_positions):
+    #         players.append(
+    #             StrategicPlayer(player_id=i, start_positions=start_pos, color=colors[i], strategy="aggressive")
+    #         )
+    #     return players
     def add_player(self, player):
         """
         Add a player to the game.
@@ -50,13 +66,12 @@ class Board:
         Possible outcomes are 1, 2, 3, 4, and 8.
         :return: The number rolled on the dice.
         """
-        possibleNumbers = [1, 2, 3, 4, 8]
+        possibleNumbers = [1, 2, 3, 4, 5, 6]
         number = random.choices(population=possibleNumbers, k=1)[0]
         return number
 
-    def move(self, player, pawn_index):
+    def move(self, player, pawn_index,roll):
         """Move a pawn for the player, based on the dice roll."""
-        roll = self.diceRoll()
         print(f"Player {player.player_id} rolled a {roll}")
 
         current_pos = player.pawns[pawn_index]
@@ -65,28 +80,23 @@ class Board:
 
         if new_pos_index < len(self.paths[player.player_id]):
             new_position = self.paths[player.player_id][new_pos_index]
+            player.kill = False
             # Check if the position is occupied by another pawn
+            # eliminated_opponent_pawn = False
             for opponent in self.players:
                 if opponent != player:
                     if new_position in opponent.pawns:
                         # Kill the opponent's pawn
                         killed_pawn_index = opponent.pawns.index(new_position)
+                        # eliminated_opponent_pawn = True
+                        player.kill = True
                         opponent.pawns[killed_pawn_index] = self.paths[opponent.player_id][0]  # Reset opponent pawn to start position
-                        print(f"Player {player.player_id},{player.pawns} killed Player {opponent.player_id}'s pawn at {new_position}")
             # Update the player's pawn position
             player.update_position(pawn_index, new_position)
-            print(f"Player {player.player_id} moved pawn {pawn_index} to {new_position}")
             return new_position
         else:
             print("Move out of bounds!")
             return current_pos
-
-    def check_winner(self):
-        for player in self.players:
-            # Check if all pawns of the player have reached home
-            if all(pawn in self.home_places for pawn in player.pawns):
-                return player
-        return None
 
     def kill_check(self, best_move):
         """
@@ -117,6 +127,16 @@ class Board:
         if kill != None and len(kill) != 0:
             self.players[kill[1]].pawns[kill[2]] = self.paths[kill[1]][0]
 
+    def check_winner(self):
+        """
+        Check if any player has moved all their pawns to their home.
+        :return: The player who won, or None if no winner yet.
+        """
+        for player in self.players:
+            # Check if all pawns of the player have reached home
+            if all(pawn in self.home_places for pawn in player.pawns):
+                return player
+        return None
 
     def render(self, screen):
         """

@@ -6,6 +6,7 @@ class StrategicPlayer:
         self.pawns = start_positions  # List of pawn positions
         self.color = color  # Player's color
         self.strategy = strategy  # Player's strategy
+        self.kill = None
 
     def decide_move(self, possible_moves, players):
         # Choose the move based on the player's strategy
@@ -26,17 +27,26 @@ class StrategicPlayer:
 
         for move in possible_moves:
             # Check if the move captures an opponent's pawn
-            if self.is_opponent_pawn(move, players):
+            if self.isKill(move):
                 capture_moves.append(move)
             else:
                 safe_moves.append(move)
 
         # Prioritize capture moves, if any
         if capture_moves:
+            print(f"The player has killed the pawn at  {capture_moves[0][3]}")
             return capture_moves[0]  # Prioritize the first capture move
+        elif safe_moves:
+            print(f"The player has chosen the safe move at {safe_moves[0][3]}")
+            return safe_moves[0]
         else:
-            return safe_moves[0] if safe_moves else possible_moves[0]  # Choose a safe move or fallback
+            print(f"The player has chosen the best of the possible move, moving to {possible_moves[0][3]}")
+            return possible_moves[0]  # Default to any move
 
+    def isKill(self, move):
+        _,kill,_,_ = move
+        if kill:
+            return True
     def is_opponent_pawn(self, position, players):
         # Check if the position has an opponent's pawn
         for player in players:
@@ -52,8 +62,12 @@ class StrategicPlayer:
             if self.is_safe_position(move,players):
                 safe_moves.append(move)
 
-        # Return the first safe move, or just stay in place if no safe move is available
-        return safe_moves[0] if safe_moves else possible_moves[0]  # Default to any move
+        if safe_moves:
+            print(f"The player has chosen the safest move possible, moving to {safe_moves[0][3]}")
+            return safe_moves[0]
+        else:
+            print(f"The player has chosen the best of the possible move, moving to {possible_moves[0][3]}")
+            return possible_moves[0]  # Default to any move
 
     def is_safe_position(self, position,players):
         # You can define a safe position based on distance from opponent pawns
@@ -65,7 +79,7 @@ class StrategicPlayer:
 
     def get_surrounding_positions(self, position):
         # Assuming position is a tuple (x, y)
-        x, y, *_ = position
+        _,_,_,(x,y) = position
         surrounding_positions = [
             (x + 1, y),  # move right
             (x - 1, y),  # move left

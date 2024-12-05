@@ -46,18 +46,19 @@ while running:
     # Perform a move for the current player
     current_player = game_board.players[current_player_id]
     possible_moves = []
+    roll = game_board.diceRoll()
 
     # Go through each pawn for the current player and calculate possible moves
     for pawn_index, pawn in enumerate(current_player.pawns):
         # Instead of manually calculating the dice roll, use the move function from Board
-        new_position = game_board.move(current_player, pawn_index)
+        new_position = game_board.move(current_player, pawn_index,roll)
         if new_position != pawn:
-            possible_moves.append((current_player_id, pawn_index, new_position))
+            possible_moves.append((current_player_id, current_player.kill, pawn_index, new_position))
 
     # If there are possible moves, choose the first one (or the best one based on strategy)
     if possible_moves:
         chosen_move = current_player.decide_move(possible_moves, game_board.players)
-        _, pawn_index, new_position = chosen_move
+        _,_, pawn_index, new_position = chosen_move
         current_player.update_position(pawn_index, new_position)  # Update pawn's position
 
     # Check if the current player has won

@@ -1,6 +1,5 @@
 import pygame
 import random
-from feat_StrategicPlayers_updated import StrategicPlayer
 
 class Board:
     def __init__(self):
@@ -36,23 +35,6 @@ class Board:
         self.screen = pygame.display.set_mode((self.board_size * self.cell_size + 2 * self.padding,
                                                self.board_size * self.cell_size + 2 * self.padding))
         pygame.display.set_caption("Ashta Chamma")
-
-    # def _create_players(self):
-    #     # Define starting positions and colors
-    #     start_positions = [
-    #         [(0, 4), (1, 4), (1, 3), (1, 2)],  # Player 1's pawns
-    #         [(4, 0), (4, 1), (5, 1), (6, 1)],  # Player 2's pawns
-    #         [(8, 4), (7, 4), (7, 5), (7, 6)],  # Player 3's pawns
-    #         [(4, 8), (4, 7), (3, 7), (2, 7)],  # Player 4's pawns
-    #     ]
-    #     colors = ["red", "blue", "green", "yellow"]  # Player colors
-    #
-    #     players = []
-    #     for i, start_pos in enumerate(start_positions):
-    #         players.append(
-    #             StrategicPlayer(player_id=i, start_positions=start_pos, color=colors[i], strategy="aggressive")
-    #         )
-    #     return players
     def add_player(self, player):
         """
         Add a player to the game.
@@ -96,45 +78,16 @@ class Board:
         for opponent in self.players:
             if opponent != player:
                 if new_position in opponent.pawns:
-                    # Kill the opponent's pawn
-                    killed_pawn_index = opponent.pawns.index(new_position)
-                    player.kill = True
-                    # Reset opponent pawn to their start position
-                    opponent.pawns[killed_pawn_index] = self.paths[opponent.player_id][0]  # Reset to start position
+                    if new_position not in self.safe_places:
+                        # Kill the opponent's pawn
+                        killed_pawn_index = opponent.pawns.index(new_position)
+                        player.kill = True
+                        # Reset opponent pawn to their start position
+                        opponent.pawns[killed_pawn_index] = self.paths[opponent.player_id][0]  # Reset to start position
 
         # Update the player's pawn position
         # player.update_position(pawn_index, new_position)
         return new_position
-
-    def kill_check(self, best_move):
-        """
-        Check if the move captures an opponent's pawn.
-        :param best_move: The move being considered.
-        :return: Information about the captured pawn, if any.
-        """
-        player_id = best_move[0]
-        pawn_id = best_move[1]
-        position = best_move[2]
-        kill = []
-        if position not in self.safe_places:
-            for player in self.players:
-                if player.player_id != player_id:
-                    for pawn_index, pawn in enumerate(player.pawns):
-                        if position == pawn:
-                            kill.append((player_id, player.player_id, pawn_index))
-
-        return kill
-
-    def update(self, best_move, kill):
-        """
-        Update the board state with the new pawn position and handle captures.
-        :param best_move: The move to update the board with.
-        :param kill: Information about the captured pawn, if any.
-        """
-        self.players[best_move[0]].pawns[best_move[1]] = best_move[2]
-        if kill != None and len(kill) != 0:
-            self.players[kill[1]].pawns[kill[2]] = self.paths[kill[1]][0]
-
     def check_winner(self,chosen_move):
         """
         Check if any player has moved all their pawns to their home.
@@ -144,7 +97,7 @@ class Board:
         if self.players[player_id].pawns[pawn_no] == (4,4):
             self.players[player_id].pawns[pawn_no] = None
             self.players[player_id].score += 1
-            if self.players[player_id].score == 3:
+            if self.players[player_id].score == 2:
                 return self.players[player_id]
 
         return None

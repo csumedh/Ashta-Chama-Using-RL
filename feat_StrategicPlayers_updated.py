@@ -7,7 +7,7 @@ class StrategicPlayer:
         self.color = color  # Player's color
         self.strategy = strategy  # Player's strategy
         self.kill = None
-        self.score = 1
+        self.score = 0
 
     def decide_move(self, possible_moves, players):
         # Choose the move based on the player's strategy
@@ -19,6 +19,13 @@ class StrategicPlayer:
             return self._defensive_move(possible_moves,players)
         elif self.strategy == "random":
             print(f"Player {self.player_id} (Random) choosing move...")
+            return random.choice(possible_moves)
+        elif self.strategy == "RL":
+            # RL agent will decide the move externally (via the RL environment)
+            print(f"Player {self.player_id} (RL): Move to be decided externally.")
+            return None
+        else:
+            print(f"Player {self.player_id}: Unknown strategy, choosing random move.")
             return random.choice(possible_moves)
 
     def _aggressive_move(self, possible_moves, players):

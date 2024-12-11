@@ -60,8 +60,8 @@ class AshtachammaEnv(gym.Env):
         self.current_player_index = 0
         return self._get_state(), {}
 
+
     def step(self, action):
-        print(f"Actions are: {action}")
         current_player = self.players[self.current_player_index]
         roll = self.board.diceRoll()
 
@@ -73,10 +73,17 @@ class AshtachammaEnv(gym.Env):
             pawn_index = action
 
             # Validate selected pawn
-            if pawn_index >= len(current_player.pawns):
+            if pawn_index is not None and pawn_index>= len(current_player.pawns):
+                print(pawn_index)
                 print(f"Invalid pawn index: {pawn_index} for Player {current_player.player_id}")
                 self._next_player()
                 return self._get_state(), -1 if current_player.strategy == "RL" else 0, False, False, {}
+
+            if current_player.pawns[pawn_index] is None:
+                for i in range(len(current_player.pawns)):
+                    if current_player.pawns[i] is not None:
+                        pawn_index = i
+                        break
 
             # Get the pawn's current position
             current_position = current_player.pawns[pawn_index]
@@ -87,22 +94,23 @@ class AshtachammaEnv(gym.Env):
             if new_position == current_position:
                 # No move occurred (invalid roll or blocked move)
                 self._next_player()
-                return self._get_state(), -1, False, False, {}
+                return self._get_state(), -0.1, False, False, {}
+
+            # Update pawn's position
+            current_player.pawns[pawn_index] = new_position
 
             # Reward for moving closer to the home position
             old_distance = abs(current_position[0] - 4) + abs(current_position[1] - 4)
             new_distance = abs(new_position[0] - 4) + abs(new_position[1] - 4)
             if new_distance < old_distance:
-                reward += 0.5  # Incremental progress reward
-
-            # Update pawn's position
-            current_player.pawns[pawn_index] = new_position
+                reward += 1.5  # Incremental progress reward
 
             # Check if the pawn reaches home
             if new_position == (4, 4):
                 print(f"Player {current_player.player_id}'s pawn {pawn_index} reached home!")
                 current_player.pawns[pawn_index] = None  # Remove the pawn
                 reward += 5  # Large reward for reaching home
+                current_player.score += 1
 
             # Check for safe zone entry
             if new_position in self.board.safe_places:
@@ -112,18 +120,12 @@ class AshtachammaEnv(gym.Env):
             for opponent in self.players:
                 if opponent != current_player:
                     for opp_pawn in opponent.pawns:
-                        if opp_pawn and abs(opp_pawn[0] - new_position[0]) + abs(opp_pawn[1] - new_position[1]) == 1:
-                            reward -= 1  # Penalize risky moves
+                        if opp_pawn and abs(opp_pawn[0] - new_position[0]) + abs(opp_pawn[1] - new_position[1]) == 6:
+                            reward -= 0.8  # Penalize risky moves
 
             # Reward for killing an opponent's pawn
             if current_player.kill:
-                reward += 1
-
-            # Check for a winner
-            if self.board.check_winner((current_player.player_id, False, pawn_index, new_position)):
-                reward += 10  # Big reward for winning
-                terminated = True
-                print(f"Player {current_player.player_id} has won the game!")
+                reward += 2
 
         else:
             # Handle non-RL players
@@ -137,18 +139,22 @@ class AshtachammaEnv(gym.Env):
             current_player.update_position(pawn_index, new_position)
             print(f"Player {current_player.player_id} chose move {chosen_move}")
 
-            # Check for winner
-            if self.board.check_winner((current_player.player_id, False, pawn_index, new_position)):
-                terminated = True
-                print(f"Player {current_player.player_id} has won the game!")
+        print(f"Player {current_player.player_id} pawn {pawn_index} moved to {new_position}. Reward: {reward}, terminated: {terminated}")
 
-        print(
-            f"Player {current_player.player_id} pawn {pawn_index} moved to {new_position}. Reward: {reward}, terminated: {terminated}")
-
+        win, winner = self.board.check_winner((current_player.player_id, False, pawn_index, new_position))
+        if win:
+            if current_player.strategy == "RL":
+                reward += 10  # Big reward for RL agent winning
+            terminated = True  # Stop the game
+            print(f"Player {current_player.player_id} {current_player.strategy} has won the game! Scores: {[player.score for player in self.players]}")
         self._next_player()
         return self._get_state(), reward, terminated, truncated, {}
 
     def _next_player(self):
+        # Check if any player has won
+        if any(player.score == 2 for player in self.players):
+            return  # Do not switch players if the game is over
+
         self.current_player_index = (self.current_player_index + 1) % len(self.players)
         while all(pawn is None for pawn in self.players[self.current_player_index].pawns):
             self.current_player_index = (self.current_player_index + 1) % len(self.players)

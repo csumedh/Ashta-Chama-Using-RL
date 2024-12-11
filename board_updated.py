@@ -62,32 +62,34 @@ class Board:
             print("Error: Pawn is not on the board!")
             return current_pos
 
-        current_pos_index = self.paths[player.player_id].index(current_pos)
-        new_pos_index = current_pos_index + roll
+        while True:
+            current_pos_index = self.paths[player.player_id].index(current_pos)
+            new_pos_index = current_pos_index + roll
 
-        # Handle out of bounds move
-        if new_pos_index >= len(self.paths[player.player_id]):
-            print("Move out of bounds!")
-            return current_pos
+            # Handle out of bounds move
+            if new_pos_index >= len(self.paths[player.player_id]):
+                print("Move out of bounds!Re-rolling")
+                roll = self.diceRoll()
+                print(f"Player {player.player_id} re-rolled a {roll}")
+            else:
+                # Update the new position
+                new_position = self.paths[player.player_id][new_pos_index]
+                player.kill = False  # Reset kill flag
 
-        # Update the new position
-        new_position = self.paths[player.player_id][new_pos_index]
-        player.kill = False  # Reset kill flag
+                # Check if the position is occupied by another pawn
+                for opponent in self.players:
+                    if opponent != player:
+                        if new_position in opponent.pawns:
+                            if new_position not in self.safe_places:
+                                # Kill the opponent's pawn
+                                killed_pawn_index = opponent.pawns.index(new_position)
+                                player.kill = True
+                                # Reset opponent pawn to their start position
+                                opponent.pawns[killed_pawn_index] = self.paths[opponent.player_id][0]  # Reset to start position
 
-        # Check if the position is occupied by another pawn
-        for opponent in self.players:
-            if opponent != player:
-                if new_position in opponent.pawns:
-                    if new_position not in self.safe_places:
-                        # Kill the opponent's pawn
-                        killed_pawn_index = opponent.pawns.index(new_position)
-                        player.kill = True
-                        # Reset opponent pawn to their start position
-                        opponent.pawns[killed_pawn_index] = self.paths[opponent.player_id][0]  # Reset to start position
-
-        # Update the player's pawn position
-        # player.update_position(pawn_index, new_position)
-        return new_position
+                # Update the player's pawn position
+                # player.update_position(pawn_index, new_position)
+                return new_position
     def check_winner(self,chosen_move):
         """
         Check if any player has moved all their pawns to their home.
@@ -97,10 +99,11 @@ class Board:
         if self.players[player_id].pawns[pawn_no] == (4,4):
             self.players[player_id].pawns[pawn_no] = None
             self.players[player_id].score += 1
-            if self.players[player_id].score == 2:
-                return self.players[player_id]
 
-        return None
+        if self.players[player_id].score == 2:
+            return True, self.players[player_id]
+
+        return False,None
 
     def render(self, screen):
         """

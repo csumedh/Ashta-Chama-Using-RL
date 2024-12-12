@@ -15,7 +15,7 @@ env = DummyVecEnv([lambda: env])
 
 # Create the model with custom hyperparameters
 #model = PPO("MlpPolicy", env, verbose=1, learning_rate=1e-4, n_steps=2048, batch_size=64)
-model = DQN("MlpPolicy", env, verbose=1, learning_rate=1e-4, batch_size=64, tensorboard_log="./ppo_tensorboard/", target_update_interval = 500 )
+model = DQN("MlpPolicy", env, verbose=1, learning_rate=1e-4, batch_size=64,exploration_fraction=0.2, exploration_initial_eps=1.0, exploration_final_eps=0.05, tensorboard_log="./ppo_tensorboard/", target_update_interval = 500 )
 
 # Define checkpoint callback
 checkpoint_callback = CheckpointCallback(save_freq=10000, save_path="./checkpoints/", name_prefix="ashtachamma_model")

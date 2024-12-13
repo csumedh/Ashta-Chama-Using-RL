@@ -1,1 +1,7 @@
 /__pycache__ 
+/.idea
+/.vs
+/checkpoints
+/dqn_ashtachamma_tensorboard
+/dqn_tensorboard
+/runs

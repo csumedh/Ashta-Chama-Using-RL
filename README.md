@@ -5,9 +5,9 @@ An Indian version of the popular game Ludo.
 
 See [Ashta-Chamma](https://wiki2.org/en/Ashta_Chamma_(board_game)) to know more
 
-The game has been build by using **pygame** module in **python3** 🐍 
+The game has been build by using **pygame** module in **python3** 🐍 and uses the PPO and DQN RL agent
 
-![preview](/assets/screenshot/preview.gif)
+![Ashta-Chamma](/assets/screenshot/Ashta-Chamma.jpg)
 
 ## Game Rules:
 
@@ -26,14 +26,18 @@ The game has been build by using **pygame** module in **python3** 🐍
 In a command prompt/terminal
 
 1. Use the 'cd' command to go to the downloaded/cloned directory
-1. Run the following command <br>
-<code>python3 game.py </code>
+1. Run the following command to play the game<br>
+<code>python3 play.py </code>
+1. Run the following command to train the PPO<br>
+<code>python3 ashtachamma_ppo.py </code>
+1. Run the following command to train the DQN<br>
+<code>python3 ashtachamma_ppo.py </code>
   
 ## Screenshot:
-![preview](/assets/screenshot/preview.png)
+![Ashta-Chamma](/assets/screenshot/Ashta-Chamma.jpg)
 
 ## Contribution :
-Interested people can contribute to develop the game 🙌
+Interested people can contribute to develop the agent even further 🙌
 
 if you dont know what to do check project board 🎯
 
@@ -41,13 +45,6 @@ You may contibute to this project by developing additional features.
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 		
-#### Thanking  [Jaya Shankar](https://github.com/jaya-shankar) & [InputBlackBoxOutput](https://github.com/InputBlackBoxOutput) for their implentation of Ashta-Chamma board game.
+#### Thanking  [Jaya Shankar](https://github.com/jaya-shankar) & [InputBlackBoxOutput](https://github.com/InputBlackBoxOutput) for their implentation of Ashta-Chamma board game which guided and helped us focus on RL instead of game development.
 
-1. 'Board.py' - contains environment for game 
-	a. 'add_player(self, player)'
-	b. 'diceRoll(self)' 
-	c. 'move(self, player_id)'
-	d. 'kill_check(self, best_move)' 
-	e. 'update(self, best_move, kill)' 
-	f. 'render(self)' 
 

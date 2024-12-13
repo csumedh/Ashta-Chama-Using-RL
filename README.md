@@ -7,7 +7,7 @@ See [Ashta-Chamma](https://wiki2.org/en/Ashta_Chamma_(board_game)) to know more
 
 The game has been build by using **pygame** module in **python3** 🐍 and uses the PPO and DQN RL agent
 
-![Ashta-Chamma](/assets/screenshot/Ashta-Chamma.jpg)
+![Ashta-Chamma](/assets/screenshot/Ashta-Chamma.gif)
 
 ## Game Rules:
 
